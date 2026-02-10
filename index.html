@@ -1448,39 +1448,33 @@
                 document.getElementById('row-3').innerHTML = generateCryptexHTML();
                 syncUI();
 
+                // Fix: transform:scale(0.8) leaves dead space below content, inflating scrollHeight.
+                // Collapse that dead space so scrollHeight matches visual content.
+                const wrapper = document.querySelector('.ui-wrapper');
+                const deadSpace = wrapper.offsetHeight - wrapper.getBoundingClientRect().height;
+                if (deadSpace > 0) wrapper.style.marginBottom = -deadSpace + 'px';
+
                 // UI Scroll Logic
                 const scrollThumb = document.getElementById('void-scroll-thumb');
                 const scrollTrack = document.getElementById('void-scroll-track');
 
-                // Track the real max scroll (auto-corrects for transform:scale)
-                let realMaxScroll = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-
                 const updateScroll = () => {
-                    // Track actual max scroll as user scrolls
-                    if (window.pageYOffset > realMaxScroll) realMaxScroll = window.pageYOffset;
-
-                    if (realMaxScroll <= 0) {
+                    const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+                    if (maxScroll <= 0) {
                         scrollTrack.style.opacity = '0';
                         return;
                     }
                     scrollTrack.style.opacity = '1';
-                    const ratio = Math.min(1, window.pageYOffset / realMaxScroll);
+                    const ratio = window.pageYOffset / maxScroll;
                     scrollThumb.style.top = 'calc(' + (ratio * 100) + '% - ' + (ratio * 30) + 'px)';
                 };
                 window.addEventListener('scroll', updateScroll);
                 window.addEventListener('resize', () => {
-                    realMaxScroll = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+                    const deadSpace = wrapper.offsetHeight - wrapper.getBoundingClientRect().height;
+                    if (deadSpace > 0) wrapper.style.marginBottom = -deadSpace + 'px';
                     updateScroll();
                 });
-
-                // Calibrate after page fully renders
-                setTimeout(() => {
-                    const saved = window.pageYOffset;
-                    window.scrollTo(0, 999999);
-                    if (window.pageYOffset > 0) realMaxScroll = window.pageYOffset;
-                    window.scrollTo(0, saved);
-                    updateScroll();
-                }, 300);
+                updateScroll();
 
                 // Make scroll thumb draggable
                 let isDragging = false;
@@ -1497,7 +1491,8 @@
                 document.addEventListener('mousemove', (e) => {
                     if (!isDragging) return;
                     const deltaY = e.clientY - startY;
-                    const scrollAmount = (deltaY / (window.innerHeight - 30)) * realMaxScroll;
+                    const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+                    const scrollAmount = (deltaY / (window.innerHeight - 30)) * maxScroll;
                     window.scrollTo(0, startScrollTop + scrollAmount);
                 });
 
@@ -1509,7 +1504,8 @@
                 scrollTrack.addEventListener('click', (e) => {
                     if (e.target === scrollThumb) return;
                     const clickPercent = e.clientY / window.innerHeight;
-                    window.scrollTo(0, clickPercent * realMaxScroll);
+                    const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+                    window.scrollTo(0, clickPercent * maxScroll);
                 });
 
                 log("Ω_KERNEL_READY // VOID_MECHANICAL_INIT");
