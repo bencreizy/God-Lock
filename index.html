@@ -1452,18 +1452,14 @@
                 const scrollThumb = document.getElementById('void-scroll-thumb');
                 const scrollTrack = document.getElementById('void-scroll-track');
 
-                // Measure the ACTUAL max scroll (transform:scale causes scrollHeight to be inflated)
-                let realMaxScroll = 1;
-                const calibrateMaxScroll = () => {
-                    const saved = window.pageYOffset;
-                    window.scrollTo(0, 999999);
-                    realMaxScroll = window.pageYOffset || 1;
-                    window.scrollTo(0, saved);
-                };
-                calibrateMaxScroll();
+                // Track the real max scroll (auto-corrects for transform:scale)
+                let realMaxScroll = document.documentElement.scrollHeight - document.documentElement.clientHeight;
 
                 const updateScroll = () => {
-                    if (realMaxScroll <= 1) {
+                    // Track actual max scroll as user scrolls
+                    if (window.pageYOffset > realMaxScroll) realMaxScroll = window.pageYOffset;
+
+                    if (realMaxScroll <= 0) {
                         scrollTrack.style.opacity = '0';
                         return;
                     }
@@ -1472,8 +1468,19 @@
                     scrollThumb.style.top = 'calc(' + (ratio * 100) + '% - ' + (ratio * 30) + 'px)';
                 };
                 window.addEventListener('scroll', updateScroll);
-                window.addEventListener('resize', () => { calibrateMaxScroll(); updateScroll(); });
-                updateScroll();
+                window.addEventListener('resize', () => {
+                    realMaxScroll = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+                    updateScroll();
+                });
+
+                // Calibrate after page fully renders
+                setTimeout(() => {
+                    const saved = window.pageYOffset;
+                    window.scrollTo(0, 999999);
+                    if (window.pageYOffset > 0) realMaxScroll = window.pageYOffset;
+                    window.scrollTo(0, saved);
+                    updateScroll();
+                }, 300);
 
                 // Make scroll thumb draggable
                 let isDragging = false;
