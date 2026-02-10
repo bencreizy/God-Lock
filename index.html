@@ -73,8 +73,7 @@
             background: var(--primary);
             border-radius: 3px;
             box-shadow: 0 0 15px var(--primary-glow);
-            transition: transform 0.1s ease-out;
-            will-change: transform;
+            transition: top 0.1s ease-out;
             cursor: grab;
             pointer-events: auto;
         }
@@ -1460,8 +1459,8 @@
                     }
                     scrollTrack.style.opacity = '1';
                     const scrollPercent = (window.pageYOffset / scrollTotal);
-                    const maxTop = scrollTrack.offsetHeight - scrollThumb.offsetHeight;
-                    scrollThumb.style.transform = `translateY(${scrollPercent * maxTop}px)`;
+                    const maxTop = window.innerHeight - 30;
+                    scrollThumb.style.top = (scrollPercent * maxTop) + 'px';
                 };
                 window.addEventListener('scroll', updateScroll);
                 window.addEventListener('resize', updateScroll);
@@ -1483,7 +1482,7 @@
                     if (!isDragging) return;
                     const deltaY = e.clientY - startY;
                     const scrollTotal = document.documentElement.scrollHeight - window.innerHeight;
-                    const maxTop = scrollTrack.offsetHeight - scrollThumb.offsetHeight;
+                    const maxTop = window.innerHeight - 30;
                     const scrollAmount = (deltaY / maxTop) * scrollTotal;
                     window.scrollTo(0, startScrollTop + scrollAmount);
                 });
