@@ -1452,26 +1452,27 @@
                 const scrollThumb = document.getElementById('void-scroll-thumb');
                 const scrollTrack = document.getElementById('void-scroll-track');
 
-                const updateScroll = () => {
-                    const doc = document.documentElement;
-                    const scrollTop = window.pageYOffset;
-                    const scrollHeight = doc.scrollHeight;
-                    const clientHeight = doc.clientHeight;
-                    const maxScroll = scrollHeight - clientHeight;
+                // Measure the ACTUAL max scroll (transform:scale causes scrollHeight to be inflated)
+                let realMaxScroll = 1;
+                const calibrateMaxScroll = () => {
+                    const saved = window.pageYOffset;
+                    window.scrollTo(0, 999999);
+                    realMaxScroll = window.pageYOffset || 1;
+                    window.scrollTo(0, saved);
+                };
+                calibrateMaxScroll();
 
-                    if (maxScroll <= 0) {
+                const updateScroll = () => {
+                    if (realMaxScroll <= 1) {
                         scrollTrack.style.opacity = '0';
                         return;
                     }
                     scrollTrack.style.opacity = '1';
-
-                    // Simple ratio: how far have we scrolled as a fraction of total
-                    const ratio = scrollTop / maxScroll;
-                    // Position thumb: at ratio=0 top=0, at ratio=1 top=calc(100% - 30px)
+                    const ratio = Math.min(1, window.pageYOffset / realMaxScroll);
                     scrollThumb.style.top = 'calc(' + (ratio * 100) + '% - ' + (ratio * 30) + 'px)';
                 };
                 window.addEventListener('scroll', updateScroll);
-                window.addEventListener('resize', updateScroll);
+                window.addEventListener('resize', () => { calibrateMaxScroll(); updateScroll(); });
                 updateScroll();
 
                 // Make scroll thumb draggable
@@ -1489,8 +1490,7 @@
                 document.addEventListener('mousemove', (e) => {
                     if (!isDragging) return;
                     const deltaY = e.clientY - startY;
-                    const maxScroll = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-                    const scrollAmount = (deltaY / (window.innerHeight - 30)) * maxScroll;
+                    const scrollAmount = (deltaY / (window.innerHeight - 30)) * realMaxScroll;
                     window.scrollTo(0, startScrollTop + scrollAmount);
                 });
 
@@ -1502,8 +1502,7 @@
                 scrollTrack.addEventListener('click', (e) => {
                     if (e.target === scrollThumb) return;
                     const clickPercent = e.clientY / window.innerHeight;
-                    const maxScroll = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-                    window.scrollTo(0, clickPercent * maxScroll);
+                    window.scrollTo(0, clickPercent * realMaxScroll);
                 });
 
                 log("Ω_KERNEL_READY // VOID_MECHANICAL_INIT");
