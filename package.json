@@ -1,0 +1,20 @@
+{
+    "name": "god-lock",
+    "version": "1.0.0",
+    "description": "Project Omega: Void Handshake - A cyberpunk encryption interface with 3D cryptex tumblers",
+    "main": "index.html",
+    "scripts": {
+        "dev": "python -m http.server 8000",
+        "start": "python -m http.server 8000"
+    },
+    "keywords": [
+        "encryption",
+        "cyberpunk",
+        "cryptex",
+        "vault",
+        "cipher",
+        "3d-animation"
+    ],
+    "author": "Void Mechanical",
+    "license": "MIT"
+}
