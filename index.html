@@ -1451,16 +1451,24 @@
                 // UI Scroll Logic
                 const scrollThumb = document.getElementById('void-scroll-thumb');
                 const scrollTrack = document.getElementById('void-scroll-track');
+
                 const updateScroll = () => {
-                    const scrollTotal = document.documentElement.scrollHeight - window.innerHeight;
-                    if (scrollTotal <= 0) {
+                    const doc = document.documentElement;
+                    const scrollTop = window.pageYOffset;
+                    const scrollHeight = doc.scrollHeight;
+                    const clientHeight = doc.clientHeight;
+                    const maxScroll = scrollHeight - clientHeight;
+
+                    if (maxScroll <= 0) {
                         scrollTrack.style.opacity = '0';
                         return;
                     }
                     scrollTrack.style.opacity = '1';
-                    const scrollPercent = (window.pageYOffset / scrollTotal);
-                    const maxTop = window.innerHeight - 30;
-                    scrollThumb.style.top = (scrollPercent * maxTop) + 'px';
+
+                    // Simple ratio: how far have we scrolled as a fraction of total
+                    const ratio = scrollTop / maxScroll;
+                    // Position thumb: at ratio=0 top=0, at ratio=1 top=calc(100% - 30px)
+                    scrollThumb.style.top = 'calc(' + (ratio * 100) + '% - ' + (ratio * 30) + 'px)';
                 };
                 window.addEventListener('scroll', updateScroll);
                 window.addEventListener('resize', updateScroll);
@@ -1481,9 +1489,8 @@
                 document.addEventListener('mousemove', (e) => {
                     if (!isDragging) return;
                     const deltaY = e.clientY - startY;
-                    const scrollTotal = document.documentElement.scrollHeight - window.innerHeight;
-                    const maxTop = window.innerHeight - 30;
-                    const scrollAmount = (deltaY / maxTop) * scrollTotal;
+                    const maxScroll = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+                    const scrollAmount = (deltaY / (window.innerHeight - 30)) * maxScroll;
                     window.scrollTo(0, startScrollTop + scrollAmount);
                 });
 
@@ -1494,11 +1501,9 @@
                 // Click on track to jump
                 scrollTrack.addEventListener('click', (e) => {
                     if (e.target === scrollThumb) return;
-                    const rect = scrollTrack.getBoundingClientRect();
-                    const clickY = e.clientY - rect.top;
-                    const scrollTotal = document.documentElement.scrollHeight - window.innerHeight;
-                    const scrollPercent = clickY / scrollTrack.offsetHeight;
-                    window.scrollTo(0, scrollPercent * scrollTotal);
+                    const clickPercent = e.clientY / window.innerHeight;
+                    const maxScroll = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+                    window.scrollTo(0, clickPercent * maxScroll);
                 });
 
                 log("Ω_KERNEL_READY // VOID_MECHANICAL_INIT");
