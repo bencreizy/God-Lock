@@ -1174,6 +1174,28 @@
 
 
     <script>
+        // ANTIGRAVITY DEFENSIVE PERIMETER
+        (function () {
+            // 1. Disable Right-Click
+            document.addEventListener('contextmenu', e => e.preventDefault());
+
+            // 2. Anti-Inspection (F12, Ctrl+Shift+I, Ctrl+U)
+            document.onkeydown = function (e) {
+                if (e.keyCode == 123 || (e.ctrlKey && e.shiftKey && e.keyCode == 73) || (e.ctrlKey && e.keyCode == 85)) {
+                    return false;
+                }
+            };
+
+            // 3. The Debugger Trap
+            setInterval(function () {
+                const startTime = performance.now();
+                debugger;
+                if (performance.now() - startTime > 100) {
+                    document.body.innerHTML = "SECURITY BREACH DETECTED: MANIFOLD COLLAPSED.";
+                }
+            }, 1000);
+        })();
+
         (function () {
             // --- SECURITY MANIFOLD LOGIC ---
             let isExpanded = true;
