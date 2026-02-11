@@ -1340,7 +1340,7 @@
 
             // --- HANDSHAKE LOGIC ---
             // UNIQUE_NOISE: A comprehensive, 1:1 mapping string with no duplicates.
-            const UNIQUE_NOISE = "Ω≈∆√∫µ†‡¶•ªº!@#$%^&*()_+{}:<>?|~ ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.,;:'\"\\/`[]-\n\t";
+            const UNIQUE_NOISE = "Ω≈∆√∫µ†‡¶•ªº!@#$%^&*()_+{}:<>?|~ ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.,;'\"\\/`[]-\n\t";
             const NOISE_LEN = UNIQUE_NOISE.length;
             const deriveSeed = function (v) { let h1 = 0x811c9dc5; for (let i = 0; i < v.length; i++) h1 = Math.imul(h1 ^ v.charCodeAt(i), 16777619); return Math.abs(h1) >>> 0; };
             const executeSiphon = function (p, v, lock) {
@@ -1375,12 +1375,8 @@
                 try {
                     let result = executeSiphon(hudInput.value || "", fullV, isLocking);
 
-                    // UNLOCK PHASE: Aggressive noise artifact cleanup
+                    // UNLOCK PHASE: Clean void state only
                     if (!isLocking) {
-                        // Strict Regex Scrub: Remove all non-printable control characters
-                        result = result.replace(/[\x00-\x1F\x7F-\x9F]/g, "");
-
-                        // Void Validation: Check for residual noise or empty buffer
                         if (result === "NULL_DATA" || result.trim().length === 0) {
                             result = "";
                         }
