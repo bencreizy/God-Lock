@@ -37,49 +37,28 @@
             align-items: center;
             overflow-x: hidden;
             scroll-behavior: smooth;
-            /* Hide default scrollbars */
-            scrollbar-width: none;
-            /* Firefox */
-            -ms-overflow-style: none;
-            /* IE/Edge */
+            /* Styled native scrollbar - Firefox */
+            scrollbar-width: thin;
+            scrollbar-color: rgba(0, 240, 255, 0.6) transparent;
         }
 
-        /* Hide scrollbars for Chrome, Safari, Opera */
-        *::-webkit-scrollbar {
-            display: none !important;
+        /* Styled native scrollbar - Chrome, Safari, Edge */
+        ::-webkit-scrollbar {
+            width: 4px;
         }
 
-        /* Cinematic Scroll Indicator */
-        #void-scroll-track {
-            position: fixed;
-            right: 8px;
-            top: 0;
-            width: 2px;
-            height: 100vh;
-            background: rgba(0, 240, 255, 0.05);
-            /* Nearly invisible track */
-            z-index: 9999;
-            pointer-events: auto;
-            cursor: pointer;
-            border-radius: 0;
+        ::-webkit-scrollbar-track {
+            background: transparent;
         }
 
-        #void-scroll-thumb {
-            position: absolute;
-            top: 0;
-            left: -2px;
-            width: 6px;
-            height: 30px;
-            background: var(--primary);
-            border-radius: 3px;
-            box-shadow: 0 0 15px var(--primary-glow);
-            transition: top 0.1s ease-out;
-            cursor: grab;
-            pointer-events: auto;
+        ::-webkit-scrollbar-thumb {
+            background: rgba(0, 240, 255, 0.6);
+            border-radius: 2px;
         }
 
-        #void-scroll-thumb:active {
-            cursor: grabbing;
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 240, 255, 0.9);
+            box-shadow: 0 0 8px rgba(0, 240, 255, 0.5);
         }
 
 
@@ -1189,9 +1168,7 @@
         <div id="error-console-output" class="error-console"></div>
     </div>
 
-    <div id="void-scroll-track">
-        <div id="void-scroll-thumb"></div>
-    </div>
+
 
 
     <script>
@@ -1484,65 +1461,7 @@
                 document.getElementById('row-3').innerHTML = generateCryptexHTML();
                 syncUI();
 
-                // Fix: transform:scale(0.8) leaves dead space below content, inflating scrollHeight.
-                // Collapse that dead space so scrollHeight matches visual content.
-                const wrapper = document.querySelector('.ui-wrapper');
-                const deadSpace = wrapper.offsetHeight - wrapper.getBoundingClientRect().height;
-                if (deadSpace > 0) wrapper.style.marginBottom = -deadSpace + 'px';
 
-                // UI Scroll Logic
-                const scrollThumb = document.getElementById('void-scroll-thumb');
-                const scrollTrack = document.getElementById('void-scroll-track');
-
-                const updateScroll = () => {
-                    const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-                    if (maxScroll <= 0) {
-                        scrollTrack.style.opacity = '0';
-                        return;
-                    }
-                    scrollTrack.style.opacity = '1';
-                    const ratio = window.pageYOffset / maxScroll;
-                    scrollThumb.style.top = 'calc(' + (ratio * 100) + '% - ' + (ratio * 30) + 'px)';
-                };
-                window.addEventListener('scroll', updateScroll);
-                window.addEventListener('resize', () => {
-                    const deadSpace = wrapper.offsetHeight - wrapper.getBoundingClientRect().height;
-                    if (deadSpace > 0) wrapper.style.marginBottom = -deadSpace + 'px';
-                    updateScroll();
-                });
-                updateScroll();
-
-                // Make scroll thumb draggable
-                let isDragging = false;
-                let startY = 0;
-                let startScrollTop = 0;
-
-                scrollThumb.addEventListener('mousedown', (e) => {
-                    isDragging = true;
-                    startY = e.clientY;
-                    startScrollTop = window.pageYOffset;
-                    e.preventDefault();
-                });
-
-                document.addEventListener('mousemove', (e) => {
-                    if (!isDragging) return;
-                    const deltaY = e.clientY - startY;
-                    const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-                    const scrollAmount = (deltaY / (window.innerHeight - 30)) * maxScroll;
-                    window.scrollTo(0, startScrollTop + scrollAmount);
-                });
-
-                document.addEventListener('mouseup', () => {
-                    isDragging = false;
-                });
-
-                // Click on track to jump
-                scrollTrack.addEventListener('click', (e) => {
-                    if (e.target === scrollThumb) return;
-                    const clickPercent = e.clientY / window.innerHeight;
-                    const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-                    window.scrollTo(0, clickPercent * maxScroll);
-                });
 
                 log("Ω_KERNEL_READY // VOID_MECHANICAL_INIT");
             };
