@@ -1427,8 +1427,9 @@
                 });
             });
             document.getElementById('btn-upload').addEventListener('click', e => { e.stopPropagation(); fileSelector.click(); });
-            fileSelector.addEventListener('change', e => {
-                const f = e.target.files[0];
+
+            // Shared file ingestion function
+            const ingestFile = (f) => {
                 if (!f) return;
                 const reader = new FileReader();
                 reader.onload = ev => {
@@ -1436,9 +1437,38 @@
                     log("INGRESS: '" + f.name + "' LOADED", "success");
                 };
                 reader.readAsText(f);
+            };
+
+            fileSelector.addEventListener('change', e => {
+                ingestFile(e.target.files[0]);
                 fileSelector.value = '';
             });
 
+            // Drag & Drop on terminal card
+            const termCard = document.getElementById('terminal-card');
+            termCard.addEventListener('dragover', e => {
+                e.preventDefault();
+                e.stopPropagation();
+                termCard.style.boxShadow = '0 0 25px rgba(0, 240, 255, 0.5), inset 0 0 15px rgba(0, 240, 255, 0.1)';
+            });
+            termCard.addEventListener('dragleave', e => {
+                e.preventDefault();
+                e.stopPropagation();
+                termCard.style.boxShadow = '';
+            });
+            termCard.addEventListener('drop', e => {
+                e.preventDefault();
+                e.stopPropagation();
+                termCard.style.boxShadow = '';
+                if (e.dataTransfer.files.length > 0) {
+                    ingestFile(e.dataTransfer.files[0]);
+                    // Auto-dismiss loader if still visible
+                    const loader = document.getElementById('loader-trigger');
+                    if (loader && !loader.classList.contains('hidden')) {
+                        window.initTerminal();
+                    }
+                }
+            });
             // HUD interaction to dismiss loader - only when clicking inside the terminal card
             document.getElementById('terminal-card').addEventListener('click', function (e) {
                 const loader = document.getElementById('loader-trigger');
