@@ -45,7 +45,6 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            overflow: hidden;
         }
 
         /* Styled native scrollbar - Chrome, Safari, Edge */
@@ -904,22 +903,19 @@
             width: 100%;
             position: relative;
             z-index: 10;
-            transform: scale(0.8);
-            transform-origin: top center;
+            zoom: 0.8;
             padding-bottom: 50px;
         }
 
         @media (max-width: 480px) {
             .ui-wrapper {
-                transform: scale(0.7);
+                zoom: 0.7;
             }
         }
 
-        /* Desktop UI Adjustments */
         @media (min-width: 1025px) {
             .ui-wrapper {
-                transform: scale(1.1);
-                transform-origin: top center;
+                zoom: 1.1;
                 padding-bottom: 10vh;
             }
 
@@ -938,7 +934,7 @@
 
         @media (min-width: 1440px) {
             .ui-wrapper {
-                transform: scale(1.3);
+                zoom: 1.3;
             }
         }
     </style>
