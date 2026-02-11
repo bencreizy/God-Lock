@@ -1432,19 +1432,10 @@
                 if (!f) return;
                 const reader = new FileReader();
                 reader.onload = ev => {
-                    const binary = new Uint8Array(ev.target.result);
-                    // Convert raw binary to Base64 noise state
-                    let binaryString = '';
-                    const chunkSize = 8192;
-                    for (let i = 0; i < binary.length; i += chunkSize) {
-                        binaryString += String.fromCharCode.apply(null, binary.subarray(i, i + chunkSize));
-                    }
-                    const noisePayload = btoa(binaryString);
-                    // Inject into HUD buffer as transient state (identical to text input)
-                    hudInput.value = noisePayload;
-                    log("INGRESS: '" + f.name + "' [" + f.size + "B] → BASE64_NOISE_STATE", "success");
+                    hudInput.value = ev.target.result;
+                    log("INGRESS: '" + f.name + "' LOADED", "success");
                 };
-                reader.readAsArrayBuffer(f);
+                reader.readAsText(f);
                 fileSelector.value = '';
             });
 
